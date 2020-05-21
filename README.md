@@ -2,7 +2,7 @@
 The goal of the project is to buld REST APIs with Deno and Oak library.
 
 For the tutorial check the below link,
-- []()
+- [https://www.geekyhacker.com/2020/05/21/build-rest-apis-with-deno-and-oak/](https://www.geekyhacker.com/2020/05/21/build-rest-apis-with-deno-and-oak/)
 
 ## How to run
 
