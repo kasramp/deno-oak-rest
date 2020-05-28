@@ -1,43 +1,40 @@
 import { Application, Router } from "https://deno.land/x/oak/mod.ts";
+import storage from "./service/storage.js";
+import config from "./config.js";
 
 const router = new Router();
 const app = new Application();
-
-const dummyUsers = [
-	{ id: 1, firstName: "John", lastName: "Wick", age: 41 },
-	{ id: 2, firstName: "Joe", lastName: "Doe", age: 35 },
-	{ id: 3, firstName: "Brad", lastName: "Pitt", age: 50 }
-];
-
-const getById = (id) => {
-	return dummyUsers.filter(user => user.id == id);
-}
 
 router
 	.get("/", (context) => {
 		context.response.body = "Welcome to Oak example with Deno!";
 	})
-	.get("/v1/users", (context) => {
-		context.response.body = { users: dummyUsers };
+	.get("/v1/users", async (context) => {
+		context.response.body = await storage.getUsers();
 	})
-	.get("/v1/users/:id", (context) => {
+	.get("/v1/users/:id", async (context) => {
 		if (context.params && context.params.id && !isNaN(parseInt(context.params.id))) {
-			const result = getById(context.params.id);
-			if (result.length < 1) {
+			const user = (await storage.getUserById(context.params.id))[0];
+			if (!user) {
 				context.response.status = 404;
 				context.response.body = { error: `User ${context.params.id} not found` };
 			} else {
-				context.response.body = result[0];
+				context.response.body = user;
 			}
 		} else {
 			context.response.status = 400;
 			context.response.body = { error: "Id must be number" };
 		}
 	})
-	.delete("/v1/users/:id", (context) => {
+	.delete("/v1/users/:id", async (context) => {
 		if (context.params && context.params.id && !isNaN(parseInt(context.params.id))) {
-			dummyUsers.splice(context.params.id - 1, 1);
-			context.response.status = 204;
+			let isDeleted = await storage.deleteUser(context.params.id);
+			if (isDeleted) {
+				context.response.status = 204;
+			} else {
+				context.response.status = 404;
+				context.response.body = { error: `User ${context.params.id} not found` };
+			}
 		} else {
 			context.response.status = 400;
 			context.response.body = { error: "Id must be number" };
@@ -51,9 +48,9 @@ router
 			const { firstName, lastName, age } = (await context.request.body(true)).value
 			const ageInt = parseInt(age);
 			if (firstName && lastName && ageInt) {
-				dummyUsers.push({ id: dummyUsers.length + 1, firstName: firstName, lastName: lastName, age: ageInt });
+				let addedUser = (await storage.addUser(firstName, lastName, ageInt))[0];
 				context.response.status = 201;
-				context.response.body = dummyUsers[dummyUsers.length - 1];
+				context.response.body = addedUser;
 			} else {
 				context.response.status = 400;
 				context.response.body = { error: "Invalid payload's provided" };
@@ -66,7 +63,7 @@ router
 			context.response.status = 400;
 			context.response.body = { error: "Invalid request" };
 		} else {
-			const result = getById(context.params.id);
+			const result = await storage.getUserById(context.params.id);
 			if (result.length < 1) {
 				context.response.status = 404;
 				context.response.body = { error: `User ${context.params.id} not found` };
@@ -75,9 +72,8 @@ router
 				const { firstName, lastName, age } = (await context.request.body()).value
 				const ageInt = parseInt(age);
 				if (firstName && lastName && ageInt) {
-					dummyUsers.splice(id - 1, 1, { id: id, firstName: firstName, lastName: lastName, age: ageInt });
 					context.response.status = 200;
-					context.response.body = dummyUsers[id-1];
+					context.response.body = (await storage.updateUser(id, firstName, lastName, ageInt))[0];
 				} else {
 					context.response.status = 400;
 					context.response.body = { error: "Invalid payload's provided" };
@@ -88,4 +84,4 @@ router
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-await app.listen({ port: 8080 });
+await app.listen({ port: config.web.port });
