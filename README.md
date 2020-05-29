@@ -6,10 +6,27 @@ For the tutorial check the below link,
 
 ## How to run
 
-First make sure to have Deno installed. Then run the following command,
+First of all make sure you have Deno installed.
+
+Then start MySQL docker and run the `db_initializer.sh` script to create the `users` table,
 
 ```bash
-$ deno run --allow-net index.js
+$ cd docker && docker-compose up -d && ./db_initializer.sh
 ```
 
-Finally, open the browser `localhost:8080`.
+And finally run the following command,
+
+```bash
+$ deno run --allow-env --allow-read --allow-net index.js
+```
+
+Now, open the browser and hit `localhost:8080`.
+
+## Endpoints
+
+- `GET /` - displays welcome page
+- `GET /v1/users` - returns a list of users
+- `GET /v1/users/:id` - gets a user by id
+- `POST /v1/users` - creates a new user
+- `PUT /v1/users/:id` - update an existing user
+- `DELETE /v1/users/:id` - deletes a user by id
