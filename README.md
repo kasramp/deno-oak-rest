@@ -1,8 +1,9 @@
 # deno-oak-rest
 The goal of the project is to buld REST APIs with Deno and Oak library.
 
-For the tutorial check the below link,
-- [https://www.geekyhacker.com/2020/05/21/build-rest-apis-with-deno-and-oak/](https://www.geekyhacker.com/2020/05/21/build-rest-apis-with-deno-and-oak/)
+For the tutorials check the below links,
+- [Build REST APIs with Deno and Oak](https://www.geekyhacker.com/2020/05/21/build-rest-apis-with-deno-and-oak/)
+- [Using MySQL with Deno](https://www.geekyhacker.com/2020/05/29/using-mysql-with-deno/)
 
 ## How to run
 
